@@ -166,7 +166,6 @@
               price -= option.price;
             }
           }
-
         }
       }
     
