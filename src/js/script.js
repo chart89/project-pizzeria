@@ -86,6 +86,7 @@
       thisProduct.formInputs = thisProduct.form.querySelectorAll(select.all.formInputs);
       thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
       thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
+      thisProduct.imageWrapper = thisProduct.element.querySelector(select.menuProduct.imageWrapper);
     }
 
     
@@ -103,7 +104,7 @@
 
         /* find active product (product that has active class) */
         const actProduct = document.querySelector(select.all.menuProductsActive);
-        console.log('zmienna to ', actProduct);
+        
         /* if there is active product and it's not thisProduct.element, remove class activ from it */
         if(actProduct && actProduct != thisProduct.element){
           actProduct.classList.remove(select.all.menuProductsActive);
@@ -135,7 +136,7 @@
     
       // covert form to object structure e.g. { sauce: ['tomato'], toppings: ['olives', 'redPeppers']}
       const formData = utils.serializeFormToObject(thisProduct.form);
-      console.log('formData', formData);
+      //console.log('formData', formData);
     
       // set price to default price
       let price = thisProduct.data.price;
@@ -144,7 +145,7 @@
       for(let paramId in thisProduct.data.params) {
         // determine param value, e.g. paramId = 'toppings', param = { label: 'Toppings', type: 'checkboxes'... }
         const param = thisProduct.data.params[paramId];
-        console.log(paramId, param);
+        //console.log(paramId, param);
     
         // for every option in this category
         for(let optionId in param.options) {
@@ -164,6 +165,18 @@
             if(option.default) {
               // reduce price variable
               price -= option.price;
+            }
+          }
+          // finde image based on class selector .paramId-optionId 
+          const optionImage = thisProduct.imageWrapper.querySelector('.'+ paramId + '-' + optionId);
+          
+          // if optionImage contains properly selector 
+          if(optionImage) {
+            // and option is marked
+            if(formData[paramId] && formData[paramId].includes(optionId)) {
+              optionImage.classList.add(classNames.menuProduct.imageVisible);
+            } else {
+              optionImage.classList.remove(classNames.menuProduct.imageVisible);
             }
           }
         }
