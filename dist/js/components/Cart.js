@@ -91,6 +91,7 @@ class Cart {
       item.innerHTML = thisCart.totalPrice;
     }
   }
+  
   remove(cartProduct){
     const thisCart = this;
     /* Finding HTML element that represent product and remove it from the DOM*/
