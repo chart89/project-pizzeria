@@ -1,6 +1,7 @@
-import {settings, select, classNames, templates} from './settings.js';
+import {settings, select, classNames} from './settings.js';
 import Product from './components/Product.js';
 import Cart from './components/Cart.js';
+import Booking from './components/Booking.js';
 
 const app = {
   initPages: function(){
@@ -11,8 +12,6 @@ const app = {
     thisApp.navLinks = document.querySelectorAll(select.nav.links);
 
     const idFromHash = window.location.hash.replace('#/', '');
-
-    console.log('idFromHash', idFromHash);
 
     let pageMatchingHash = thisApp.pages[0].id;
 
@@ -76,7 +75,6 @@ const app = {
         return rawResponse.json();
       })
       .then(function(parasedResponse){
-        console.log('parasedResponse', parasedResponse);
 
         /* save parasedResponse as thisApp.data products */
         thisApp.data.products = parasedResponse;
@@ -86,14 +84,11 @@ const app = {
   },
   init: function(){
     const thisApp = this;
-    console.log('*** App starting ***');
-    console.log('thisApp:', thisApp);
-    console.log('classNames:', classNames);
-    console.log('settings:', settings);
-    console.log('templates:', templates);
+  
     thisApp.initPages();
     thisApp.initData();
     thisApp.initCart();
+    thisApp.initBooking();
     
   },
 
@@ -108,6 +103,13 @@ const app = {
     thisApp.productList.addEventListener('add-to-cart', function(event){
       app.cart.add(event.detail.product);
     });
+  },
+
+  initBooking: function(){
+    const thisApp = this;
+    thisApp.bookingContainer = document.querySelector(select.containerOf.booking);
+    
+    thisApp.bookingCon = new Booking(thisApp.bookingContainer);
   }
 };
 
