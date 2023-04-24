@@ -109,6 +109,7 @@ const app = {
     const thisApp = this;
     thisApp.bookingContainer = document.querySelector(select.containerOf.booking);
     
+  
     thisApp.bookingCon = new Booking(thisApp.bookingContainer);
   }
 };
