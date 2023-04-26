@@ -7,9 +7,14 @@ import HourPicker from './HourPicker.js';
 class Booking {
   constructor(element){
     const thisBooking = this;
+    thisBooking.markedTables = '';
     thisBooking.render(element);
     thisBooking.initWidget();
     thisBooking.getData();
+    
+  
+    
+  
   }
 
   getData(){
@@ -34,7 +39,6 @@ class Booking {
       ]
     };
 
-    //console.log('getData params', params);
 
     const urls = {
       booking: settings.db.url + '/' + settings.db.booking + '?' + params.booking.join('&'),
@@ -58,9 +62,7 @@ class Booking {
         ]);
       })
       .then(function([bookings, eventsCurrent, eventsReapeat]){
-        //console.log(bookings);
-        //console.log(eventsCurrent);
-        //console.log(eventsReapeat);
+        
         thisBooking.paraseData(bookings, eventsCurrent, eventsReapeat);
       });
   }
@@ -88,8 +90,9 @@ class Booking {
         }
       }
     }
-    //console.log(thisBooking.booked);
+    
     thisBooking.updateDOM();
+    //console.log('dareczek', thisBooking.markedTables);
   }
 
   makeBooked(date, hour, duration, table){
@@ -103,7 +106,7 @@ class Booking {
 
 
     for(let hourBlock = startHour; hourBlock < startHour + duration; hourBlock += 0.5){
-      //console.log('loop', hourBlock);
+      
       if(typeof thisBooking.booked[date][hourBlock] == 'undefined'){
         thisBooking.booked[date][hourBlock] = [];
       }
@@ -150,6 +153,8 @@ class Booking {
     }
   }
 
+  
+
   render(element){
     const thisBooking = this;
 
@@ -165,6 +170,11 @@ class Booking {
     thisBooking.dom.datePicker = document.querySelector(select.widgets.datePicker.wrapper);
     thisBooking.dom.hourPicker = document.querySelector(select.widgets.hourPicker.wrapper);
     thisBooking.dom.tables = thisBooking.dom.wrapper.querySelectorAll(select.booking.tables);
+
+    /* select div with table */
+    thisBooking.dom.divTables = document.querySelector(select.booking.table);
+    
+
   }
 
   initWidget(){
@@ -176,14 +186,86 @@ class Booking {
     thisBooking.hourPicker = new HourPicker(thisBooking.dom.hourPicker);
 
     thisBooking.dom.peopleAmount.addEventListener('updated', function(){
+      thisBooking.resetGreenTables();
     });
 
     thisBooking.dom.hoursAmount.addEventListener('updated', function(){
+      thisBooking.resetGreenTables();
+    });
+
+    thisBooking.dom.datePicker.addEventListener('updated', function(){
+      thisBooking.resetGreenTables();
+    });
+
+    thisBooking.dom.hourPicker.addEventListener('updated', function(){
+      thisBooking.resetGreenTables();
     });
 
     thisBooking.dom.wrapper.addEventListener('updated', function(){
       thisBooking.updateDOM();
     });
+    /* add event listener for div with tables */
+    thisBooking.dom.divTables.addEventListener('click', function(event){
+      event.preventDefault();
+      thisBooking.initTables(event);
+    });
   }
+
+
+  initTables(event){
+    const thisBooking = this;
+    thisBooking.clickedElement = event.target;
+
+    // Check that clickedElement contains class table
+    if(thisBooking.clickedElement.classList.contains(classNames.booking.table)){
+
+      // get Id of the clickedElement
+      const tableId = thisBooking.clickedElement.getAttribute(settings.booking.tableIdAttribute);
+
+      // check if any table contains class 'checked' and const markedTable not equels 0
+      if(thisBooking.markedTables != 0 && thisBooking.clickedElement.classList.contains(classNames.booking.checked)){
+        thisBooking.clickedElement.classList.remove(classNames.booking.checked);
+        thisBooking.markedTables = 0;
+      }
+      // if table is booked
+      else if (thisBooking.clickedElement.classList.contains(classNames.booking.tableBooked)){
+        alert('Stolik niedostępny!');
+      }
+      // Check if the table is marked
+      else if (thisBooking.clickedElement.classList.contains(classNames.booking.checked)){
+
+        //remove the "checked" class
+        thisBooking.clickedElement.classList.remove(classNames.booking.checked);
+      }
+      else {
+        for(let table of thisBooking.dom.tables){
+
+          // If any table is marked
+          if(table.classList.contains(classNames.booking.checked)){
+
+            // Remove class checked
+            table.classList.remove(classNames.booking.checked);
+          }
+        }
+        // And add class 'checked' to clicked table
+        thisBooking.clickedElement.classList.add(classNames.booking.checked);
+        thisBooking.markedTables = tableId;
+
+      }
+    }
+  }
+  //function to remove class checked while picker is using
+  resetGreenTables(){
+    const thisBooking = this;
+    
+    for(let greenTable of thisBooking.dom.tables){
+    
+      if(greenTable.classList.contains(classNames.booking.checked)){
+        greenTable.classList.remove(classNames.booking.checked);
+      }
+    }
+    
+  }
+  
 }
 export default Booking;
