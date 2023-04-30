@@ -11,7 +11,7 @@ class Booking {
     thisBooking.render(element);
     thisBooking.initWidget();
     thisBooking.getData();
-    
+  
   
     
   
@@ -92,7 +92,7 @@ class Booking {
     }
     
     thisBooking.updateDOM();
-    //console.log('dareczek', thisBooking.markedTables);
+    
   }
 
   makeBooked(date, hour, duration, table){
@@ -170,11 +170,15 @@ class Booking {
     thisBooking.dom.datePicker = document.querySelector(select.widgets.datePicker.wrapper);
     thisBooking.dom.hourPicker = document.querySelector(select.widgets.hourPicker.wrapper);
     thisBooking.dom.tables = thisBooking.dom.wrapper.querySelectorAll(select.booking.tables);
-
+    thisBooking.dom.address = thisBooking.dom.wrapper.querySelector(select.cart.address);
+    thisBooking.dom.phone = thisBooking.dom.wrapper.querySelector(select.cart.phone);
+    thisBooking.dom.bookingButton = thisBooking.dom.wrapper.querySelector('.btn-secondary');
+    thisBooking.dom.bookingOptions = thisBooking.dom.wrapper.querySelector(select.containerOf.bookingOptions);
     /* select div with table */
     thisBooking.dom.divTables = document.querySelector(select.booking.table);
-    
 
+    /* select input checkbox with name 'starter. */
+    thisBooking.chkStarters = document.getElementsByName(select.booking.starter);
   }
 
   initWidget(){
@@ -209,6 +213,18 @@ class Booking {
       event.preventDefault();
       thisBooking.initTables(event);
     });
+
+    thisBooking.dom.bookingButton.addEventListener('click', function(){
+      event.preventDefault();
+      thisBooking.sendBooking();
+      thisBooking.resetGreenTables();
+      for(let greenTable of thisBooking.dom.tables){
+    
+        if(greenTable.classList.contains(classNames.booking.checked)){
+          greenTable.classList.remove(classNames.booking.checked);
+        }
+      }
+    });
   }
 
 
@@ -223,9 +239,9 @@ class Booking {
       const tableId = thisBooking.clickedElement.getAttribute(settings.booking.tableIdAttribute);
 
       // check if any table contains class 'checked' and const markedTable not equels 0
-      if(thisBooking.markedTables != 0 && thisBooking.clickedElement.classList.contains(classNames.booking.checked)){
+      if(thisBooking.markedTables != null && thisBooking.clickedElement.classList.contains(classNames.booking.checked)){
         thisBooking.clickedElement.classList.remove(classNames.booking.checked);
-        thisBooking.markedTables = 0;
+        thisBooking.markedTables = null;
       }
       // if table is booked
       else if (thisBooking.clickedElement.classList.contains(classNames.booking.tableBooked)){
@@ -250,10 +266,11 @@ class Booking {
         // And add class 'checked' to clicked table
         thisBooking.clickedElement.classList.add(classNames.booking.checked);
         thisBooking.markedTables = tableId;
-
+        
       }
     }
   }
+
   //function to remove class checked while picker is using
   resetGreenTables(){
     const thisBooking = this;
@@ -262,10 +279,60 @@ class Booking {
     
       if(greenTable.classList.contains(classNames.booking.checked)){
         greenTable.classList.remove(classNames.booking.checked);
+        thisBooking.markedTables = null;
       }
     }
-    
+    console.log('booking', thisBooking.markedTables);
   }
+
+  sendBooking(){
+    const thisBooking = this;
+    const url = settings.db.url + '/' + settings.db.booking;
+  
+    const payload = {
+      date: thisBooking.datePicker.value,
+      hour: thisBooking.hourPicker.value,
+      table: parseInt(thisBooking.markedTables),
+      duration: parseInt(thisBooking.hoursAmount.value),
+      ppl: parseInt(thisBooking.peopleAmount.value),
+      starters: [],
+      phone: thisBooking.dom.phone.value,
+      address: thisBooking.dom.address.value
+    };
+    
+    /*start loop for every match input */
+    for(let singleStarter of thisBooking.chkStarters){
+      /* if element is checked add it to payload element */
+      if(singleStarter.checked){
+        payload.starters.push(singleStarter.value);
+
+
+        /* if not and array starters contains singleStarter.value - remove it */
+      } else if (!singleStarter.checked && payload.starters.indexOf(singleStarter.value) !== -1) {
+        const checkArray = payload.starters.indexOf(singleStarter.value);
+        payload.starters.splice(checkArray, 1);
+      }
+    }
+    /* use function makeBooked to add selected options to thisBooking.booked */
+    thisBooking.makeBooked(payload.date, payload.hour, payload.duration, payload.table);
+
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    };
+      
+    fetch(url, options)
+      .then(function(response){
+        return response.json();
+      }).then(function(parsedResponse){
+        console.log('parsedResponse', parsedResponse);
+      });
+
+  }
+
   
 }
 export default Booking;

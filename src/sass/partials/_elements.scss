@@ -6,6 +6,7 @@
 
 .btn-secondary {
   @include btn($color-main, $color-light, $color-main);
+  cursor: pointer;
 }
 
 .btn-quantity {
