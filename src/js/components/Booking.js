@@ -306,7 +306,6 @@ class Booking {
       if(singleStarter.checked){
         payload.starters.push(singleStarter.value);
 
-
         /* if not and array starters contains singleStarter.value - remove it */
       } else if (!singleStarter.checked && payload.starters.indexOf(singleStarter.value) !== -1) {
         const checkArray = payload.starters.indexOf(singleStarter.value);
