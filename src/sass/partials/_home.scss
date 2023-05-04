@@ -147,37 +147,33 @@
 
   i {
     position: absolute;
-    font-size: 30px;
+    font-size: 0;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     color: red;
     z-index: 3;
-    opacity: 0;
     transition: 1s all;
   }
 
 }
 
 .inner-gallery:hover i {
-  opacity: 1;
+  font-size: 30px;
 }
 
 .inner-gallery::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: grey;
-    height: 205px;
-    width: 205px;
-    opacity: 0;
-    transition: 1s all;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: grey;
+  height: 205px;
+  width: 205px;
+  opacity: 0;
+  transition: 1s all;
 }
 
 .inner-gallery:hover::after {
   opacity: 0.6;
 }
-
-
-
